@@ -46,6 +46,9 @@ pub fn core_main() -> Option<CoreMainAction> {
     if !crate::common::global_init() {
         return None;
     }
+    // ATACE branding: set the application name before any config path,
+    // registry key, service name or window title is derived from it.
+    *hbb_common::config::APP_NAME.write().unwrap() = "ATACE Support".to_owned();
     crate::load_custom_client();
     #[cfg(windows)]
     if !crate::platform::windows::bootstrap() {
