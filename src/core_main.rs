@@ -49,6 +49,20 @@ pub fn core_main() -> Option<CoreMainAction> {
     // ATACE branding: set the application name before any config path,
     // registry key, service name or window title is derived from it.
     *hbb_common::config::APP_NAME.write().unwrap() = "ATACE Support".to_owned();
+    // ATACE default server, baked in so the shipped binary needs no
+    // filename suffix and no manual Settings > Network step.
+    // Resolution order upstream is: exe-name license > stored option >
+    // PROD_RENDEZVOUS_SERVER, so a user-entered server still wins.
+    {
+        use hbb_common::config::{Config, PROD_RENDEZVOUS_SERVER};
+        *PROD_RENDEZVOUS_SERVER.write().unwrap() = "169.58.168.12".to_owned();
+        if Config::get_option("key").is_empty() {
+            Config::set_option(
+                "key".to_owned(),
+                "JZJkwoeWKfvTRigV8hu+xDvb2vX3VLdQcRz5algvIB4=".to_owned(),
+            );
+        }
+    }
     crate::load_custom_client();
     #[cfg(windows)]
     if !crate::platform::windows::bootstrap() {
