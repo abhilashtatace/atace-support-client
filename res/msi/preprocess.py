@@ -84,6 +84,14 @@ def make_parser():
         "--app-name", type=str, default="RustDesk", help="The app name."
     )
     parser.add_argument(
+        "--display-name",
+        type=str,
+        default="",
+        help="Human-facing product name. Defaults to --app-name. Use this when the "
+        "app name must stay space-free for the executable, registry keys and the "
+        "URI scheme, but the installer should still read nicely.",
+    )
+    parser.add_argument(
         "-v", "--version", type=str, default="", help="The app version."
     )
     parser.add_argument(
@@ -249,9 +257,9 @@ def gen_pre_vars(args, dist_dir):
         to_insert_lines = [
             f'{indent}<?define Version="{g_version}" ?>\n',
             f'{indent}<?define Manufacturer="{args.manufacturer}" ?>\n',
-            f'{indent}<?define Product="{args.app_name}" ?>\n',
-            f'{indent}<?define Description="{args.app_name} Installer" ?>\n',
-            f'{indent}<?define ProductLower="{args.app_name.lower()}" ?>\n',
+            f'{indent}<?define Product="{args.display_name or args.app_name}" ?>\n',
+            f'{indent}<?define Description="{args.display_name or args.app_name} Installer" ?>\n',
+            f'{indent}<?define ProductLower="{args.app_name.lower().replace(" ", "")}" ?>\n',
             f'{indent}<?define RegKeyRoot=".$(var.ProductLower)" ?>\n',
             f'{indent}<?define RegKeyInstall="$(var.RegKeyRoot)\\Install" ?>\n',
             f'{indent}<?define BuildDir="{dist_dir}" ?>\n',
@@ -465,7 +473,7 @@ def init_global_vars(dist_dir, app_name, args):
 
     def read_process_output(args):
         process = subprocess.Popen(
-            f"{dist_app} {args}",
+            f'"{dist_app}" {args}',
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             shell=True,
@@ -568,4 +576,4 @@ if __name__ == "__main__":
     if not gen_custom_dialog_bitmaps():
         sys.exit(-1)
 
-    replace_app_name_in_langs(args.app_name)
+    replace_app_name_in_langs(args.display_name or args.app_name)

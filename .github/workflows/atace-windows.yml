@@ -418,9 +418,9 @@ jobs:
         run: |
           # ATACE: the installer takes its product name, manufacturer and
           # installed exe name from the dist folder + these flags.
-          Move-Item ./rustdesk/rustdesk.exe './rustdesk/ATACE Support.exe'
+          Move-Item ./rustdesk/rustdesk.exe ./rustdesk/ATACESupport.exe
           pushd ./res/msi
-          python preprocess.py --arp -d ../../rustdesk --app-name "ATACE Support" --manufacturer "ATACE Inc."
+          python preprocess.py --arp -d ../../rustdesk --app-name ATACESupport --display-name "ATACE Support" --manufacturer "ATACE Inc."
           nuget restore msi.sln
           $msiPlatform = if ('${{ matrix.job.arch }}' -eq 'aarch64') { 'ARM64' } else { 'x64' }
           msbuild msi.sln -p:Configuration=Release -p:Platform=$msiPlatform /p:TargetVersion=Windows10
@@ -450,7 +450,7 @@ jobs:
         run: |
           git checkout -- res/msi
           cp -r ./rustdesk ./rustdesk-msi-template
-          mv './rustdesk-msi-template/ATACE Support.exe' ./rustdesk-msi-template/RDAPPNAM.exe
+          mv ./rustdesk-msi-template/ATACESupport.exe ./rustdesk-msi-template/RDAPPNAM.exe
           Set-Content -Path ./rustdesk-msi-template/custom.txt -Value 'placeholder' -NoNewline
           $assets = './rustdesk-msi-template/data/flutter_assets/assets'
           New-Item -ItemType Directory -Force -Path $assets | Out-Null
