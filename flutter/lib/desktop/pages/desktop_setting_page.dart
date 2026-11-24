@@ -75,7 +75,10 @@ class DesktopSettingPage extends StatefulWidget {
         bind.mainGetBuildinOption(key: kOptionHideNetworkSetting) != 'Y')
       SettingsTabKey.network,
     if (!bind.isIncomingOnly()) SettingsTabKey.display,
-    if (!bind.isDisableAccount()) SettingsTabKey.account,
+    // ATACE: the Account tab authenticates against the Server Pro web API,
+    // which the self-hosted OSS server does not provide. Hidden so nobody
+    // is offered a login that cannot work.
+    // if (!bind.isDisableAccount()) SettingsTabKey.account,
     if (isWindows &&
         !bind.isDisableSettings() &&
         bind.mainGetBuildinOption(key: kOptionHideRemotePrinterSetting) != 'Y')
@@ -656,7 +659,7 @@ class _GeneralState extends State<_General> {
       ));
     }
 
-    if (!bind.isDisableAccount()) {
+    if (false) {  // ATACE: Account tab hidden, see above
       children.add(_OptionCheckBox(
         context,
         'note-at-conn-end-tip',
