@@ -49,32 +49,14 @@ pub fn core_main() -> Option<CoreMainAction> {
     // ATACE branding: set the application name before any config path,
     // registry key, service name or window title is derived from it.
     *hbb_common::config::APP_NAME.write().unwrap() = "ATACE Support".to_owned();
-    // ATACE default server, baked in so the shipped binary needs no
-    // filename suffix and no manual Settings > Network step.
-    // Resolution order upstream is: exe-name license > stored option >
-    // PROD_RENDEZVOUS_SERVER, so a user-entered server still wins.
-    {
-        use hbb_common::config::{Config, PROD_RENDEZVOUS_SERVER};
-        // Fallback for any path that reads the static directly.
-        *PROD_RENDEZVOUS_SERVER.write().unwrap() = "169.58.168.12".to_owned();
-        // Store them as real options too, so Settings > Network shows the
-        // server rather than an empty box the user cannot verify.
-        if Config::get_option("custom-rendezvous-server").is_empty() {
-            Config::set_option(
-                "custom-rendezvous-server".to_owned(),
-                "169.58.168.12".to_owned(),
-            );
-        }
-        if Config::get_option("relay-server").is_empty() {
-            Config::set_option("relay-server".to_owned(), "169.58.168.12".to_owned());
-        }
-        if Config::get_option("key").is_empty() {
-            Config::set_option(
-                "key".to_owned(),
-                "JZJkwoeWKfvTRigV8hu+xDvb2vX3VLdQcRz5algvIB4=".to_owned(),
-            );
-        }
-    }
+    // ATACE default server. Deliberately NOT written via Config::set_option
+    // here: that runs in the controlled-side process too, where an early
+    // config write can interfere with the background server process starting,
+    // and without it there is no IPC, no one-time password and no
+    // registration. The real defaults are compiled into
+    // common::get_custom_rendezvous_server and common::get_key instead.
+    *hbb_common::config::PROD_RENDEZVOUS_SERVER.write().unwrap() =
+        crate::common::ATACE_RENDEZVOUS_SERVER.to_owned();
     crate::load_custom_client();
     #[cfg(windows)]
     if !crate::platform::windows::bootstrap() {

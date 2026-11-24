@@ -1250,6 +1250,12 @@ pub fn is_setup(name: &str) -> bool {
     !config::is_disable_installation() && name.to_lowercase().ends_with("install.exe")
 }
 
+/// ATACE self-hosted server. Used as the final fallback so the shipped
+/// binary connects with no configuration, while anything the user or the
+/// exe name supplies still takes precedence.
+pub const ATACE_RENDEZVOUS_SERVER: &str = "169.58.168.12";
+pub const ATACE_RS_PUB_KEY: &str = "JZJkwoeWKfvTRigV8hu+xDvb2vX3VLdQcRz5algvIB4=";
+
 pub fn get_custom_rendezvous_server(custom: String) -> String {
     #[cfg(windows)]
     if let Ok(lic) = crate::platform::windows::get_license_from_exe_name() {
@@ -1263,7 +1269,7 @@ pub fn get_custom_rendezvous_server(custom: String) -> String {
     if !config::PROD_RENDEZVOUS_SERVER.read().unwrap().is_empty() {
         return config::PROD_RENDEZVOUS_SERVER.read().unwrap().clone();
     }
-    "".to_owned()
+    ATACE_RENDEZVOUS_SERVER.to_owned()
 }
 
 #[inline]
@@ -2172,7 +2178,8 @@ pub async fn get_key(sync: bool) -> String {
         options.remove("key").unwrap_or_default()
     };
     if key.is_empty() {
-        key = config::RS_PUB_KEY.to_owned();
+        // ATACE: fall back to our server's key, not the public RustDesk one.
+        key = ATACE_RS_PUB_KEY.to_owned();
     }
     key
 }
