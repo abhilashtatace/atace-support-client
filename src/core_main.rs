@@ -55,7 +55,19 @@ pub fn core_main() -> Option<CoreMainAction> {
     // PROD_RENDEZVOUS_SERVER, so a user-entered server still wins.
     {
         use hbb_common::config::{Config, PROD_RENDEZVOUS_SERVER};
+        // Fallback for any path that reads the static directly.
         *PROD_RENDEZVOUS_SERVER.write().unwrap() = "169.58.168.12".to_owned();
+        // Store them as real options too, so Settings > Network shows the
+        // server rather than an empty box the user cannot verify.
+        if Config::get_option("custom-rendezvous-server").is_empty() {
+            Config::set_option(
+                "custom-rendezvous-server".to_owned(),
+                "169.58.168.12".to_owned(),
+            );
+        }
+        if Config::get_option("relay-server").is_empty() {
+            Config::set_option("relay-server".to_owned(), "169.58.168.12".to_owned());
+        }
         if Config::get_option("key").is_empty() {
             Config::set_option(
                 "key".to_owned(),
